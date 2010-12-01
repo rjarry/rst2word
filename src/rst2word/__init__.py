@@ -9,7 +9,7 @@ __docformat__ = 'reStructuredText'
 
 from docutils import writers
 from docutils.transforms import writer_aux
-from docutils.writers.word.visitor import WordTranslator
+from rst2word.visitor import WordTranslator
 
 class Writer(writers.Writer):
 
@@ -23,6 +23,9 @@ class Writer(writers.Writer):
                 {'default': False, 'action': 'store_true'}),
             ('Auto insert caption titles', ['--auto-caption'],
                 {'default': False, 'action': 'store_true'}),
+            ('Global scale for all images', ['--image-scale'],
+                {'default': 100}),
+            
         )
     )
 
@@ -36,6 +39,8 @@ class Writer(writers.Writer):
 
     def translate(self):
         self.visitor = self.translator_class(self.document)
-        self.document.walkabout(self.visitor)
-        return ""
+        try:
+            self.document.walkabout(self.visitor)
+        finally:
+            self.visitor.word.show()
 

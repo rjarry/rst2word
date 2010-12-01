@@ -5,9 +5,9 @@ Created on 26 oct. 2010
 @author: diabeteman
 '''
 from docutils import nodes
-from docutils.writers.word.wrapper import Word, Excel
-from docutils.writers.word.constants import Constants as CST
-from docutils.writers.word.constants import getConstant as getCST
+from rst2word.wrapper import Word, Excel
+from rst2word.constants import Constants as CST
+from rst2word.constants import getConstant as getCST
 
 import os.path, re
 
@@ -303,7 +303,6 @@ class WordTranslator(nodes.NodeVisitor):
             except KeyError:
                 pass
         self.word.updateFields()
-        self.word.show()
 
     def visit_emphasis(self, node):
         self.word.setStyle(CST.wdStyleEmphasis)
