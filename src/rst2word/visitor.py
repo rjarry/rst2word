@@ -9,7 +9,7 @@ from rst2word.wrapper import Word, Excel
 from rst2word.constants import Constants as CST
 from rst2word.constants import getConstant as getCST
 
-import os.path, re
+import os, os.path, re
 
 SPACE_REX = re.compile(r"(\s|\n|\r\n|\r)+", re.DOTALL)
 ILLEGAL_REX = re.compile(r"(\s|-|_|'|\"|:|;|/|\.|!|\*)+")
@@ -20,12 +20,11 @@ class WordTranslator(nodes.NodeVisitor):
         nodes.NodeVisitor.__init__(self, document)
         self.settings = document.settings
         self.word = Word(self.settings.word_template)
-        if self.settings.show_gui: 
-            self.word.show()
-        
         self.document = document
         self.root_path = os.path.dirname(self.document.attributes["source"])
-        
+        self.destination = self.settings._destination
+        if not os.path.isabs(self.destination):
+            self.destination = os.path.join(os.path.abspath(os.curdir), self.destination)
         self.section_level = 0
         self.cur_table_dimensions = (0, 0)
         self.in_table = False
@@ -191,10 +190,10 @@ class WordTranslator(nodes.NodeVisitor):
         pass
 
     def visit_comment(self, node):
-        pass
+        self.skip_text=True
 
     def depart_comment(self, node):
-        pass
+        self.skip_text=False
 
     def visit_compound(self, node):
         pass
@@ -293,6 +292,8 @@ class WordTranslator(nodes.NodeVisitor):
         self.word.newParagraph()
 
     def visit_document(self, node):
+        if self.settings.show_gui: 
+            self.word.show()
         self.word.setStyle(CST.wdStyleBodyText)
 
     def depart_document(self, node):
@@ -686,7 +687,7 @@ class WordTranslator(nodes.NodeVisitor):
 
     def visit_table(self, node):
         self.in_table = True
-        rows, cols = self.get_table_size(node)
+        rows, cols = get_table_size(node)
         self.cur_table_dimensions = (rows, cols)
         table = self.word.addTable(rows, cols)
         self.word.formatTable(table=table, latteral_padding=0.25, vertical_padding=0.2, 
@@ -816,26 +817,26 @@ class WordTranslator(nodes.NodeVisitor):
     def depart_warning(self, node):
         pass
 
-    def get_table_size(self, node):
-        r_head, c_head = self.extract_sizes(node, thead=True)
-        r_body, c_body = self.extract_sizes(node, thead=False)
-        rows = r_head + r_body
-        cols = max(c_head, c_body)
-        return rows, cols
-        
-    def extract_sizes(self, node, thead=True):
-        if thead: tag = "thead"
-        else:     tag = "tbody"
-        rows, cols = 0, 0
-        for c in node.children:
-            if c.tagname == "tgroup":
-                for cc in c.children:
-                    if cc.tagname == tag:
-                        rows = len(cc.children)
-                        cols = len(cc.children[0].children)
-                        break
-                break
-        return rows, cols
+def get_table_size(node):
+    r_head, c_head = extract_sizes(node, thead=True)
+    r_body, c_body = extract_sizes(node, thead=False)
+    rows = r_head + r_body
+    cols = max(c_head, c_body)
+    return rows, cols
+    
+def extract_sizes(node, thead=True):
+    if thead: tag = "thead"
+    else:     tag = "tbody"
+    rows, cols = 0, 0
+    for c in node.children:
+        if c.tagname == "tgroup":
+            for cc in c.children:
+                if cc.tagname == tag:
+                    rows = len(cc.children)
+                    cols = len(cc.children[0].children)
+                    break
+            break
+    return rows, cols
 
 
 class Hyperlink:

@@ -13,23 +13,21 @@ try:
     locale.setlocale(locale.LC_ALL, '')
 except:
     pass
-
-from docutils.core import default_description, default_usage
-from docutils.parsers import rst
 from docutils.readers import standalone
+from docutils.parsers import rst
+from docutils import core
 from docutils.io import NullOutput
 import rst2word
 
-
 description = ('Generates Microsoft Word documents from standalone reStructuredText '
-               'sources.  ' + default_description)
+               'sources.  ' + core.default_description)
 
 def publish_word():
-    pub = Publisher(reader=standalone.Reader, 
-                    parser=rst.Parser, 
-                    writer=rst2word.Writer,
-                    destination_class=NullOutput)
-    output = pub.publish(usage=default_usage, 
+    pub = core.Publisher(reader=standalone.Reader(), 
+                         parser=rst.Parser(), 
+                         writer=rst2word.Writer(), 
+                         destination_class=NullOutput)
+    output = pub.publish(usage=core.default_usage, 
                          description=description, 
                          enable_exit_status=1)
     return output

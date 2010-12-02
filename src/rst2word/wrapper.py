@@ -50,6 +50,9 @@ class Word:
         # convenience when debugging
         self.wordApp.Visible = 1
 
+    def quit(self, saveChanges=False):
+        self.wordApp.Quit(SaveChanges=saveChanges)
+
     def getStyleList(self):
         # returns a dictionary of the styles in a document
         self.styles = []

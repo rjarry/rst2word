@@ -19,12 +19,14 @@ class Writer(writers.Writer):
         (
             ('Specify the template file', ['--word-template'],
                 {'default': None, 'metavar': '<file>'}),
-            ('Show Word GUI', ['--show-gui'],
+            ('Show Word GUI during document generation (slows down the process)', ['--show-gui'],
                 {'default': False, 'action': 'store_true'}),
             ('Auto insert caption titles', ['--auto-caption'],
                 {'default': False, 'action': 'store_true'}),
             ('Global scale for all images', ['--image-scale'],
                 {'default': 100}),
+            ('Headless mode', ['--headless'],
+                {'default': False, 'action': 'store_true'}),
             
         )
     )
@@ -41,6 +43,10 @@ class Writer(writers.Writer):
         self.visitor = self.translator_class(self.document)
         try:
             self.document.walkabout(self.visitor)
+            self.visitor.word.saveAs(self.visitor.destination)
         finally:
-            self.visitor.word.show()
+            if self.document.settings.headless:
+                self.visitor.word.quit()
+            else:
+                self.visitor.word.show()
 
