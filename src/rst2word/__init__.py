@@ -25,6 +25,8 @@ class Writer(writers.Writer):
                 {'default': False, 'action': 'store_true'}),
             ('Global scale for all images', ['--image-scale'],
                 {'default': 100}),
+            ('Table of Contents depth', ['--toc-depth'],
+                {'default': 3}),   
             ('Headless mode', ['--headless'],
                 {'default': False, 'action': 'store_true'}),
             

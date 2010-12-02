@@ -14,6 +14,7 @@ import os, os.path, re
 SPACE_REX = re.compile(r"(\s|\n|\r\n|\r)+", re.DOTALL)
 ILLEGAL_REX = re.compile(r"(\s|-|_|'|\"|:|;|/|\.|!|\*)+")
 
+
 class WordTranslator(nodes.NodeVisitor):
     
     def __init__(self, document):
@@ -61,7 +62,7 @@ class WordTranslator(nodes.NodeVisitor):
         
         if not self.in_litteral_block:
             text = SPACE_REX.subn(" ", text)[0]
-
+            
         self.word.addText(text)
 
     def depart_Text(self, node):
@@ -581,7 +582,7 @@ class WordTranslator(nodes.NodeVisitor):
             xl.copyCells()
             self.word.pasteExcelTable()
             xl.close()
-
+            
     def depart_raw(self, node):
         self.skip_text = False
 
@@ -589,10 +590,13 @@ class WordTranslator(nodes.NodeVisitor):
         if self.skip_text:
             return
         else:
-            bookmark_id = ILLEGAL_REX.subn("", node["refid"])[0]
-            self.word.insertHyperlink(text=node.astext(), target=bookmark_id)
             self.skip_text = True
             self.in_link = True
+            if node.attributes.__contains__("refid"):
+                bookmark_id = ILLEGAL_REX.subn("", node["refid"])[0]
+            elif node.attributes.__contains__("refuri"):
+                bookmark_id = node["refuri"]
+            self.word.insertHyperlink(text=node.astext(), target=bookmark_id)
 
     def depart_reference(self, node):
         if self.in_link:
@@ -703,10 +707,13 @@ class WordTranslator(nodes.NodeVisitor):
     def visit_target(self, node):
         if self.skip_text:
             return
-        bookmark_id = ILLEGAL_REX.subn("", node["refid"])[0]
-        self.bookmarks[bookmark_id] = bookmark_id
-        self.word.insertBookmark(bookmark_id)
-
+        try:
+            bookmark_id = ILLEGAL_REX.subn("", node["refid"])[0]
+            self.bookmarks[bookmark_id] = bookmark_id
+            self.word.insertBookmark(bookmark_id)
+        except KeyError:
+            pass
+        
     def depart_target(self, node):
         pass
 
@@ -718,7 +725,7 @@ class WordTranslator(nodes.NodeVisitor):
 
     def visit_term(self, node):
         self.cur_column += 1
-        self.word.setStyle(CST.wdStyleStrong)
+        self.word.setFont("Bold")
         self.word.setAlignment(CST.wdAlignParagraphRight)
 
     def depart_term(self, node):
@@ -794,7 +801,7 @@ class WordTranslator(nodes.NodeVisitor):
 
     def depart_topic(self, node):
         if "contents" in node["classes"]:
-            self.word.insertTableOfContents()
+            self.word.insertTableOfContents(self.settings.toc_depth)
             self.word.newParagraph()
             self.skip_text = False
         

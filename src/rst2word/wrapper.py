@@ -264,10 +264,10 @@ class Word:
         list_lvl = list_template.ListLevels(1)
         list_lvl.StartAt = 1
         list_lvl.LinkedStyle = self.selection.Style
-        self.selection.Range.ListFormat.ApplyListTemplateWithLevel(ListTemplate=list_template, 
-                                                                   ContinuePreviousList=False,
-                                                                   ApplyTo=CST.wdListApplyToWholeList, 
-                                                                   DefaultListBehavior=CST.wdWord10ListBehavior)
+        self.selection.Range.ListFormat.ApplyListTemplate(ListTemplate=list_template, 
+                                                          ContinuePreviousList=False,
+                                                          ApplyTo=CST.wdListApplyToWholeList, 
+                                                          DefaultListBehavior=CST.wdWord10ListBehavior)
 
 
 
