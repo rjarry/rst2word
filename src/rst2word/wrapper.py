@@ -265,11 +265,20 @@ class Word:
         list_lvl.StartAt = 1
         list_lvl.LinkedStyle = self.selection.Style
         self.selection.Range.ListFormat.ApplyListTemplate(ListTemplate=list_template, 
-                                                          ContinuePreviousList=False,
-                                                          ApplyTo=CST.wdListApplyToWholeList, 
-                                                          DefaultListBehavior=CST.wdWord10ListBehavior)
+                                                                   ContinuePreviousList=False,
+                                                                   ApplyTo=CST.wdListApplyToWholeList, 
+                                                                   DefaultListBehavior=CST.wdWord10ListBehavior)
 
-
+    def addOLEObject(self, filename, classType="PowerPoint.Show.8"):
+        shape = self.selection.InlineShapes.AddOLEObject(ClassType=classType, 
+                                                         FileName=file, 
+                                                         LinkToFile=False, 
+                                                         DisplayAsIcon=False)
+        shape.LockAspectRatio = -1
+        shape.Width = (self.doc.PageSetup.PageWidth 
+                     - self.doc.PageSetup.RightMargin 
+                     - self.doc.PageSetup.LeftMargin)
+        self.selectEnd()
 
 def CentimetersToPoints(centimeters):
     return centimeters * 28.35

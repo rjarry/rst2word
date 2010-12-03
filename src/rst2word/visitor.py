@@ -583,6 +583,12 @@ class WordTranslator(nodes.NodeVisitor):
             self.word.pasteExcelTable()
             xl.close()
             
+        elif node["format"] == "powerpoint":
+            filename = node["source"]
+            if not os.path.isabs(filename):
+                filename = os.path.join(self.root_path, filename)
+            self.word.addOLEObject(os.path.normpath(filename))
+            
     def depart_raw(self, node):
         self.skip_text = False
 
