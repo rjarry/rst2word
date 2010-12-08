@@ -377,7 +377,11 @@ class WordTranslator(nodes.NodeVisitor):
         pass
 
     def visit_figure(self, node):
-        figure_align = node["align"] 
+        try:
+            figure_align = node["align"]
+        except KeyError:
+            figure_align = "center"
+            
         if figure_align == "center":
             self.word.setAlignment(CST.wdAlignParagraphCenter)
         elif figure_align == "left":
@@ -427,11 +431,27 @@ class WordTranslator(nodes.NodeVisitor):
         pass
 
     def visit_image(self, node):
-        image_path = os.path.normpath(os.path.join(self.root_path, node["uri"]))
-        self.word.insertImage(image_path)
+        if isinstance(node.parent, nodes.substitution_definition):
+            return
+        
+        image_path = node["uri"]
+        
+        if not os.path.isabs(image_path):
+            root = os.path.abspath(os.path.dirname(node.parent.source))
+            image_path = os.path.join(root, image_path)
+        
+        image = self.word.insertImage(os.path.normpath(image_path))
+        
+        scale = self.settings.image_scale
+        try:
+            scale *= node["scale"] / 100.0
+        except KeyError:
+            pass
+        
+        self.word.scaleImage(image, scale)
 
     def depart_image(self, node):
-        self.word.newParagraph()
+        pass
 
     def visit_important(self, node):
         pass
@@ -569,15 +589,12 @@ class WordTranslator(nodes.NodeVisitor):
     def visit_raw(self, node):
         self.skip_text = True
         
-        if node["format"] == "word":
-            text = node.children[0].astext()
-            if text == "page-break":
-                self.word.insertPageBreak()
-                
-        elif node["format"] == "excel":
+        if node["format"] == "excel":
             filename = node["source"]
             if not os.path.isabs(filename):
-                filename = os.path.join(self.root_path, filename)
+                root = os.path.abspath(os.path.dirname(node.parent.source))
+                filename = os.path.join(root, filename)
+        
             xl = Excel(os.path.normpath(filename))
             xl.copyCells()
             self.word.pasteExcelTable()
@@ -586,7 +603,9 @@ class WordTranslator(nodes.NodeVisitor):
         elif node["format"] == "powerpoint":
             filename = node["source"]
             if not os.path.isabs(filename):
-                filename = os.path.join(self.root_path, filename)
+                root = os.path.abspath(os.path.dirname(node.parent.source))
+                filename = os.path.join(root, filename)
+                
             self.word.addOLEObject(os.path.normpath(filename))
             
     def depart_raw(self, node):
@@ -681,6 +700,7 @@ class WordTranslator(nodes.NodeVisitor):
 
     def depart_subtitle(self, node):
         self.in_title = False
+        self.word.newParagraph()
         self.word.clearFormatting()
 
     def visit_superscript(self, node):
@@ -700,8 +720,11 @@ class WordTranslator(nodes.NodeVisitor):
         rows, cols = get_table_size(node)
         self.cur_table_dimensions = (rows, cols)
         table = self.word.addTable(rows, cols)
-        self.word.formatTable(table=table, latteral_padding=0.25, vertical_padding=0.2, 
-                              border=True, first_row_bg_color=CST.wdColorGray15)
+        if "no-format" in node["classes"]:
+            self.word.formatTable(table, latteral_padding=0.2, vertical_padding=0.1, border=False)
+        else:
+            self.word.formatTable(table=table, latteral_padding=0.25, vertical_padding=0.2, 
+                                  border=True, first_row_bg_color=CST.wdColorGray15)
 
     def depart_table(self, node):
         self.in_table = False
@@ -829,6 +852,15 @@ class WordTranslator(nodes.NodeVisitor):
 
     def depart_warning(self, node):
         pass
+    
+    def visit_word(self, node):
+        self.skip_text = True
+        text = node.astext()
+        if text == "page-break":
+            self.word.insertPageBreak()
+    
+    def depart_word(self, node):
+        self.skip_text = False
 
 def get_table_size(node):
     r_head, c_head = extract_sizes(node, thead=True)

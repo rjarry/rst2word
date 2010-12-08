@@ -97,7 +97,7 @@ class Word:
                                        False) #RTF ?
 
     def setDocProperty(self, name, value):
-        if name in ["Title", "Subject", "Author", "Comments", "Revision", "Company"]:
+        if name in ["Title", "Subject", "Author", "Comments", "Revision number", "Company"]:
             self.doc.BuiltInDocumentProperties[name] = value
         else:
             try:
@@ -175,6 +175,11 @@ class Word:
         self.selectEnd()
 
         return image
+
+    def scaleImage(self, image, scale=100.0):
+        image.LockAspectRatio = -1
+        image.Width = image.Width * (scale / 100.0)
+        image.Height = image.Height * (scale / 100.0)
 
     def addCaption(self, text, figure, auto=False, label="Figure"):
         if auto:
@@ -260,13 +265,23 @@ class Word:
         self.selection.ClearFormatting()
 
     def resetListStartNumber(self):
+        
+        format = self.selection.Style.ParagraphFormat
         list_template = self.selection.Style.ListTemplate
         list_lvl = list_template.ListLevels(1)
+        list_lvl.NumberFormat = "%1."
+        list_lvl.TrailingCharacter = CST.wdTrailingTab
+        list_lvl.NumberStyle = CST.wdListNumberStyleArabic
+        list_lvl.NumberPosition = format.LeftIndent + format.FirstLineIndent
+        list_lvl.Alignment = CST.wdListLevelAlignLeft
+        list_lvl.TextPosition = format.TabStops[0].Position
+        list_lvl.TabPosition = format.TabStops[0].Position
+        list_lvl.ResetOnHigher = 0
         list_lvl.StartAt = 1
         list_lvl.LinkedStyle = self.selection.Style
-        self.selection.Range.ListFormat.ApplyListTemplate(ListTemplate=list_template, 
+        self.selection.Range.ListFormat.ApplyListTemplateWithLevel(ListTemplate=list_template, 
                                                                    ContinuePreviousList=False,
-                                                                   ApplyTo=CST.wdListApplyToWholeList, 
+                                                                   ApplyTo=CST.wdListApplyToThisPointForward, 
                                                                    DefaultListBehavior=CST.wdWord10ListBehavior)
 
     def addOLEObject(self, filename, classType="PowerPoint.Show.8"):
