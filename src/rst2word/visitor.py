@@ -240,7 +240,7 @@ class WordTranslator(nodes.NodeVisitor):
         pass
 
     def visit_definition(self, node):
-        self.word.setStyle(CST.wdStyleBodyText)
+        self.word.setStyle(CST.wdStyleNormal)
         self.cur_column += 1
 
     def depart_definition(self, node):
@@ -861,6 +861,10 @@ class WordTranslator(nodes.NodeVisitor):
     
     def depart_word(self, node):
         self.skip_text = False
+
+#################################################################
+#### UTIL METHODS ###############################################
+#################################################################
 
 def get_table_size(node):
     r_head, c_head = extract_sizes(node, thead=True)
