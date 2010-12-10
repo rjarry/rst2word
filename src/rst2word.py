@@ -15,10 +15,8 @@ except:
     pass
 from docutils.readers import standalone
 from docutils.parsers import rst
-from docutils.parsers.rst import directives
 from docutils import core
 from docutils.io import NullOutput
-from rst2word.directives import WordDirective
 import rst2word
 
 description = ('Generates Microsoft Word documents from standalone reStructuredText '
@@ -35,6 +33,5 @@ def publish_word():
     return output
 
 if __name__ == "__main__":
-    directives.register_directive("word", WordDirective)
     publish_word()
 

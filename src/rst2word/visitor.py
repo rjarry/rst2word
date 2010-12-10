@@ -589,7 +589,10 @@ class WordTranslator(nodes.NodeVisitor):
     def visit_raw(self, node):
         self.skip_text = True
         
-        if node["format"] == "excel":
+        if node["format"] == "word":
+            if node.astext() == "page-break":
+                self.word.insertPageBreak()
+        elif node["format"] == "excel":
             filename = node["source"]
             if not os.path.isabs(filename):
                 root = os.path.abspath(os.path.dirname(node.parent.source))
@@ -853,14 +856,6 @@ class WordTranslator(nodes.NodeVisitor):
     def depart_warning(self, node):
         pass
     
-    def visit_word(self, node):
-        self.skip_text = True
-        text = node.astext()
-        if text == "page-break":
-            self.word.insertPageBreak()
-    
-    def depart_word(self, node):
-        self.skip_text = False
 
 #################################################################
 #### UTIL METHODS ###############################################
