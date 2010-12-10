@@ -5,7 +5,7 @@ Created on 26 oct. 2010
 @author: diabeteman
 '''
 import win32com.client as WIN
-from rst2word.constants import Constants as CST
+from rst2wordlib.constants import Constants as CST
 
 class Excel:
 

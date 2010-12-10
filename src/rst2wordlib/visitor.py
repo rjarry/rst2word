@@ -5,9 +5,9 @@ Created on 26 oct. 2010
 @author: diabeteman
 '''
 from docutils import nodes
-from rst2word.wrapper import Word, Excel
-from rst2word.constants import Constants as CST
-from rst2word.constants import getConstant as getCST
+from rst2wordlib.wrapper import Word, Excel
+from rst2wordlib.constants import Constants as CST
+from rst2wordlib.constants import getConstant as getCST
 
 import os, os.path, re
 
@@ -154,6 +154,7 @@ class WordTranslator(nodes.NodeVisitor):
             self.word.clearFormatting()
 
     def visit_caption(self, node):
+        self.word.newParagraph()
         self.word.setStyle(CST.wdStyleCaption)
 
     def depart_caption(self, node):
@@ -442,9 +443,9 @@ class WordTranslator(nodes.NodeVisitor):
         
         image = self.word.insertImage(os.path.normpath(image_path))
         
-        scale = self.settings.image_scale
+        scale = int(self.settings.image_scale)
         try:
-            scale *= node["scale"] / 100.0
+            scale *= int(node["scale"]) / 100.0
         except KeyError:
             pass
         

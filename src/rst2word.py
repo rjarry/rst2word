@@ -17,7 +17,7 @@ from docutils.readers import standalone
 from docutils.parsers import rst
 from docutils import core
 from docutils.io import NullOutput
-import rst2word
+import rst2wordlib
 
 description = ('Generates Microsoft Word documents from standalone reStructuredText '
                'sources.  ' + core.default_description)
@@ -25,7 +25,7 @@ description = ('Generates Microsoft Word documents from standalone reStructuredT
 def publish_word():
     pub = core.Publisher(reader=standalone.Reader(), 
                          parser=rst.Parser(), 
-                         writer=rst2word.Writer(), 
+                         writer=rst2wordlib.Writer(), 
                          destination_class=NullOutput)
     output = pub.publish(usage=core.default_usage, 
                          description=description, 

@@ -9,7 +9,7 @@ __docformat__ = 'reStructuredText'
 
 from docutils import writers
 from docutils.transforms import writer_aux
-from rst2word.visitor import WordTranslator
+from rst2wordlib.visitor import WordTranslator
 
 class Writer(writers.Writer):
 
