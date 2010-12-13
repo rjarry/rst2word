@@ -154,7 +154,6 @@ class WordTranslator(nodes.NodeVisitor):
             self.word.clearFormatting()
 
     def visit_caption(self, node):
-        self.word.newParagraph()
         self.word.setStyle(CST.wdStyleCaption)
 
     def depart_caption(self, node):
@@ -441,6 +440,9 @@ class WordTranslator(nodes.NodeVisitor):
             root = os.path.abspath(os.path.dirname(node.parent.source))
             image_path = os.path.join(root, image_path)
         
+        if not isinstance(node.parent, nodes.figure):
+            self.word.setAlignment(CST.wdAlignParagraphCenter)
+        
         image = self.word.insertImage(os.path.normpath(image_path))
         
         scale = int(self.settings.image_scale)
@@ -452,7 +454,7 @@ class WordTranslator(nodes.NodeVisitor):
         self.word.scaleImage(image, scale)
 
     def depart_image(self, node):
-        pass
+        self.word.newParagraph()
 
     def visit_important(self, node):
         pass
