@@ -1,2 +1,2 @@
-@echo off
+#!/bin/sh
 python rst2word.py %*

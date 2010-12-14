@@ -20,7 +20,7 @@ class WordTranslator(nodes.NodeVisitor):
     def __init__(self, document):
         nodes.NodeVisitor.__init__(self, document)
         self.settings = document.settings
-        if not os.path.isabs(self.settings.word_template):
+        if self.settings.word_template and not os.path.isabs(self.settings.word_template):
             self.settings.word_template = os.path.join(os.path.abspath(os.curdir), self.settings.word_template)
         self.word = Word(self.settings.word_template)
         self.document = document
