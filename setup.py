@@ -4,7 +4,7 @@ setup(
     name = "rst2word",
     packages = ["rst2wordlib"],
     scripts=['scripts/rst2word.cmd', 'scripts/rst2word.py'],
-    version = "0.3.0",
+    version = "0.3.1",
     description = "A Word writer for docutils",
     author = "Robin Jarry",
     author_email = "robin.jarry@gmail.com",

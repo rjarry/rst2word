@@ -1,2 +1,2 @@
 @echo off
-python rst2word.py %*
+python "%~dp0rst2word.py" %*
