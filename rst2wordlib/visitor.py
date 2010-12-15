@@ -24,7 +24,7 @@ class WordTranslator(nodes.NodeVisitor):
             self.settings.word_template = os.path.join(os.path.abspath(os.curdir), self.settings.word_template)
         self.word = Word(self.settings.word_template)
         self.document = document
-        self.root_path = os.path.dirname(self.document.attributes["source"])
+        self.root_path = os.path.abspath(os.path.dirname(self.document.attributes["source"]))
         self.destination = self.settings._destination
         if not os.path.isabs(self.destination):
             self.destination = os.path.join(os.path.abspath(os.curdir), self.destination)
@@ -439,8 +439,7 @@ class WordTranslator(nodes.NodeVisitor):
         image_path = node["uri"]
         
         if not os.path.isabs(image_path):
-            root = os.path.abspath(os.path.dirname(node.parent.source))
-            image_path = os.path.join(root, image_path)
+            image_path = os.path.join(self.root_path, image_path)
         
         if not isinstance(node.parent, nodes.figure):
             self.word.setAlignment(CST.wdAlignParagraphCenter)
@@ -601,7 +600,7 @@ class WordTranslator(nodes.NodeVisitor):
             filename = node["source"]
             if not os.path.isabs(filename):
                 root = os.path.abspath(os.path.dirname(node.parent.source))
-                filename = os.path.join(root, filename)
+                filename = os.path.join(self.root_path, filename)
         
             xl = Excel(os.path.normpath(filename))
             xl.copyCells()
@@ -612,7 +611,7 @@ class WordTranslator(nodes.NodeVisitor):
             filename = node["source"]
             if not os.path.isabs(filename):
                 root = os.path.abspath(os.path.dirname(node.parent.source))
-                filename = os.path.join(root, filename)
+                filename = os.path.join(self.root_path, filename)
                 
             self.word.addOLEObject(os.path.normpath(filename))
             
