@@ -64,7 +64,61 @@ class Word:
         return self.styles
 
     def saveAs(self, filename):
-        self.doc.SaveAs(filename)
+        try:
+            # for word 2010
+            if filename.endswith("docx"):
+                self.doc.SaveAs2(FileName=filename,
+                                 FileFormat=CST.wdFormatDocument,
+                                 LockComments=False, 
+                                 Password="", 
+                                 AddToRecentFiles=True, 
+                                 WritePassword="", 
+                                 ReadOnlyRecommended=False, 
+                                 EmbedTrueTypeFonts=False,
+                                 SaveNativePictureFormat=False, 
+                                 SaveFormsData=False, 
+                                 SaveAsAOCELetter=False, 
+                                 CompatibilityMode=12)
+            else:
+                self.doc.SaveAs2(FileName=filename,
+                                 FileFormat=CST.wdFormatDocument97,
+                                 LockComments=False, 
+                                 Password="", 
+                                 AddToRecentFiles=True, 
+                                 WritePassword="", 
+                                 ReadOnlyRecommended=False, 
+                                 EmbedTrueTypeFonts=False,
+                                 SaveNativePictureFormat=False, 
+                                 SaveFormsData=False, 
+                                 SaveAsAOCELetter=False, 
+                                 CompatibilityMode=11)
+        except AttributeError:
+            # for other word versions
+            if filename.endswith("docx"):
+                self.doc.SaveAs(FileName=filename,
+                                 FileFormat=CST.wdFormatDocument,
+                                 LockComments=False, 
+                                 Password="", 
+                                 AddToRecentFiles=True, 
+                                 WritePassword="", 
+                                 ReadOnlyRecommended=False, 
+                                 EmbedTrueTypeFonts=False,
+                                 SaveNativePictureFormat=False, 
+                                 SaveFormsData=False, 
+                                 SaveAsAOCELetter=False)
+            else:
+                self.doc.SaveAs(FileName=filename,
+                                 FileFormat=CST.wdFormatDocument97,
+                                 LockComments=False, 
+                                 Password="", 
+                                 AddToRecentFiles=True, 
+                                 WritePassword="", 
+                                 ReadOnlyRecommended=False, 
+                                 EmbedTrueTypeFonts=False,
+                                 SaveNativePictureFormat=False, 
+                                 SaveFormsData=False, 
+                                 SaveAsAOCELetter=False)
+                
 
     def printout(self):
         self.doc.PrintOut()

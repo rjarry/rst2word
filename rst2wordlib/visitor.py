@@ -599,7 +599,6 @@ class WordTranslator(nodes.NodeVisitor):
         elif node["format"] == "excel":
             filename = node["source"]
             if not os.path.isabs(filename):
-                root = os.path.abspath(os.path.dirname(node.parent.source))
                 filename = os.path.join(self.root_path, filename)
         
             xl = Excel(os.path.normpath(filename))
@@ -610,7 +609,6 @@ class WordTranslator(nodes.NodeVisitor):
         elif node["format"] == "powerpoint":
             filename = node["source"]
             if not os.path.isabs(filename):
-                root = os.path.abspath(os.path.dirname(node.parent.source))
                 filename = os.path.join(self.root_path, filename)
                 
             self.word.addOLEObject(os.path.normpath(filename))
