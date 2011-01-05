@@ -1,4 +1,7 @@
 
-/GUID.docx
-/GUI.doc
-/GUID.doc
+*.docx
+*.doc
+*.pyc
+/MANIFEST
+/dist
+/build

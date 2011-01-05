@@ -6,6 +6,7 @@ Created on 26 oct. 2010
 '''
 import win32com.client as WIN
 from rst2wordlib.constants import Constants as CST
+import re
 
 class Excel:
 
@@ -26,12 +27,16 @@ class Excel:
         self.xlApp.Quit()
 
 
+
 class Word:
     """
     Wrapper aroud Word 8 documents to make them easy to build.
     Has variables for the Applications, Document and Selection; 
     most methods add things at the end of the document
     """
+    
+    
+        
 
     def __init__(self, templatefile=None):
         self.wordApp = WIN.dynamic.Dispatch("Word.Application")
@@ -293,8 +298,16 @@ class Word:
         for table in self.doc.Tables:
             table.AutoFitBehavior(fit)
 
-    def insertBookmark(self, name):
-        self.doc.Bookmarks.Add(Range=self.selection.Range, Name=name)
+    def insertBookmark(self, name, start=0, end=0):
+        if start and end:
+            range = self.doc.Range(start, end)
+            try:
+                self.doc.Bookmarks.Add(Range=range, Name=name)
+            except:
+                pass
+        else:
+            self.doc.Bookmarks.Add(Range=self.selection.Range, Name=name)
+        self.selectEnd()
     
     def insertHyperlink(self, text, target):
         self.doc.Hyperlinks.Add(Anchor=self.selection.Range,

@@ -12,7 +12,7 @@ from rst2wordlib.constants import getConstant as getCST
 import os, os.path, re
 
 SPACE_REX = re.compile(r"(\s|\n|\r\n|\r)+", re.DOTALL)
-ILLEGAL_REX = re.compile(r"(\s|-|_|'|\"|:|;|/|\.|!|\*)+")
+ILLEGAL_REX = re.compile(r"(\s|-|'|\(|\)|\"|:|;|\?|&|#|%|\+|/|\.|!|\*)+")
 
 
 class WordTranslator(nodes.NodeVisitor):
@@ -45,6 +45,7 @@ class WordTranslator(nodes.NodeVisitor):
         self.bookmarks = {}
         self.in_link = False
         self.in_table_head = False
+        self.sections = [Section()]
 
     def visit_Text(self, node):
         if self.skip_text: return
@@ -623,7 +624,7 @@ class WordTranslator(nodes.NodeVisitor):
             self.skip_text = True
             self.in_link = True
             if node.attributes.__contains__("refid"):
-                bookmark_id = ILLEGAL_REX.subn("", node["refid"])[0]
+                bookmark_id = ILLEGAL_REX.subn("_", node["refid"])[0]
             elif node.attributes.__contains__("refuri"):
                 bookmark_id = node["refuri"]
             self.word.insertHyperlink(text=node.astext(), target=bookmark_id)
@@ -653,10 +654,17 @@ class WordTranslator(nodes.NodeVisitor):
         pass
 
     def visit_section(self, node):
-        self.section_level += 1
+        section = Section()
+        self.sections[-1].next_child += 1
+        section.number = self.sections[-1].next_child
+        section.start = self.word.selection.Start
+        self.sections.append(section)
+        section.title = calcSectionNumber(self.sections)
 
     def depart_section(self, node):
-        self.section_level -= 1
+        section = self.sections.pop()
+        section.end = self.word.selection.Start
+        self.word.insertBookmark(name=section.title, start=section.start, end=section.end)
 
     def visit_sidebar(self, node):
         pass
@@ -742,7 +750,7 @@ class WordTranslator(nodes.NodeVisitor):
         if self.skip_text:
             return
         try:
-            bookmark_id = ILLEGAL_REX.subn("", node["refid"])[0]
+            bookmark_id = ILLEGAL_REX.subn("_", node["refid"])[0]
             self.bookmarks[bookmark_id] = bookmark_id
             self.word.insertBookmark(bookmark_id)
         except KeyError:
@@ -804,16 +812,12 @@ class WordTranslator(nodes.NodeVisitor):
             self.in_doc_property = True
         else:
             assert isinstance(node.parent, nodes.section)
-            level = self.section_level
+            level = len(self.sections) - 1 # we do not take the first section as it is dummy
             if level > 9 : level = 9
             self.word.setStyle(getCST("wdStyleHeading%d" % level))
-            bookmark_id = ILLEGAL_REX.subn("", node.astext())[0]
-            self.bookmarks[node.children[0]] = bookmark_id
-            try:
-                self.word.insertBookmark(bookmark_id)
-            except:
-                pass
-            
+            bookmark_id = ILLEGAL_REX.subn("_", node.astext())[0]
+            self.sections[-1].title = self.sections[-1].title + "_" + bookmark_id 
+
 
     def depart_title(self, node):
         self.word.newParagraph()
@@ -890,3 +894,16 @@ class Hyperlink:
     end = None
     target = None
     text = None
+
+class Section:
+    start = None
+    end = None
+    title = None
+    number = 1
+    next_child = 0
+    
+def calcSectionNumber(sections):
+    number = "T"
+    for s in sections[1:]: # we ignore the first dummy section
+        number += "_%d" % s.number
+    return number
