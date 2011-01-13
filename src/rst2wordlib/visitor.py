@@ -12,7 +12,7 @@ from rst2wordlib.constants import getConstant as getCST
 import os, os.path, re
 
 SPACE_REX = re.compile(r"(\s|\n|\r\n|\r)+", re.DOTALL)
-ILLEGAL_REX = re.compile(r"(\s|-|'|\(|\)|\"|:|;|\?|&|#|%|\+|/|\.|!|\*)+")
+ILLEGAL_REX = re.compile(r"(\s|-|'|,|\(|\)|\"|:|;|\?|&|#|%|\+|/|\.|!|\*)+")
 
 
 class WordTranslator(nodes.NodeVisitor):
@@ -101,7 +101,6 @@ class WordTranslator(nodes.NodeVisitor):
 
     def depart_admonition(self, node):
         self.in_admonition = False
-        self.word.newParagraph()
         self.word.clearFormatting()
 
     def visit_attention(self, node):
@@ -572,11 +571,9 @@ class WordTranslator(nodes.NodeVisitor):
             self.word.setStyle(CST.wdStyleBodyText)
 
     def depart_paragraph(self, node):
-        if not (   self.skip_text 
-                or self.in_table 
-                or self.in_admonition):
+        if not (self.skip_text or self.in_table):
             self.word.newParagraph()
-            if not self.in_list:
+            if not (self.in_list or self.in_admonition):
                 self.word.clearFormatting()
 
     def visit_pending(self, node):

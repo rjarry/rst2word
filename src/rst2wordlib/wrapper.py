@@ -301,25 +301,27 @@ class Word:
     def insertBookmark(self, name, start=0, end=0):
         if start and end:
             range = self.doc.Range(start, end)
-            try:
-                self.doc.Bookmarks.Add(Range=range, Name=name)
-            except:
-                pass
+            self.doc.Bookmarks.Add(Range=range, Name=name)
         else:
             self.doc.Bookmarks.Add(Range=self.selection.Range, Name=name)
         self.selectEnd()
     
     def insertHyperlink(self, text, target):
-        self.doc.Hyperlinks.Add(Anchor=self.selection.Range,
-                                Address=target, TextToDisplay=text)
+        if target.startswith("_"):
+            self.doc.Hyperlinks.Add(Anchor=self.selection.Range,
+                                    SubAddress=target, TextToDisplay=text)
+        else:
+            self.doc.Hyperlinks.Add(Anchor=self.selection.Range,
+                                    Address=target, TextToDisplay=text)
     
     def convertToInternalHyperlink(self, link):
         target = link.Address
+        text = link.TextToDisplay
         
         link.Range.Fields(1).Result.Select()
         link.Delete()
-        self.doc.Hyperlinks.Add(Anchor=self.selection.Range,
-                                SubAddress=target, Address="")
+        self.doc.Hyperlinks.Add(Anchor=self.selection.Range, Address="", 
+                                SubAddress=target, TextToDisplay=text)
         self.selectEnd()
     
     def getHyperlinks(self):
