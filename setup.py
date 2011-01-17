@@ -2,7 +2,7 @@
 from distutils.core import setup
 setup(
     name = "rst2word",
-    version = "0.4.2",
+    version = "0.4.3",
     license = "MIT",
     platforms = ["Windows"],
     requires = ["docutils (>=0.7)", "win32com"],
