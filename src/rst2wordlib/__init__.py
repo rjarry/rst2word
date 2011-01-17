@@ -29,7 +29,8 @@ class Writer(writers.Writer):
                 {'default': 3}),   
             ('Headless mode', ['--headless'],
                 {'default': False, 'action': 'store_true'}),
-            
+            ('Export to PDF', ['--pdf'],
+                {'default': False, 'action': 'store_true'}),
         )
     )
 
@@ -44,8 +45,13 @@ class Writer(writers.Writer):
     def translate(self):
         self.visitor = self.translator_class(self.document)
         try:
+            print "Generating word document..."
             self.document.walkabout(self.visitor)
+            print "Saving document %s..." % self.visitor.destination
             self.visitor.word.saveAs(self.visitor.destination)
+            if self.document.settings.pdf and self.visitor.pdf_destination:
+                print "Exporting document to PDF file %s..." % self.visitor.pdf_destination
+                self.visitor.word.saveAsPdf(self.visitor.pdf_destination)
         finally:
             if self.document.settings.headless:
                 self.visitor.word.quit()

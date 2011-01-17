@@ -28,6 +28,9 @@ class WordTranslator(nodes.NodeVisitor):
         self.destination = self.settings._destination
         if not os.path.isabs(self.destination):
             self.destination = os.path.join(os.path.abspath(os.curdir), self.destination)
+        name = self.destination.rsplit(".", 1)[0]
+        self.pdf_destination = name + ".pdf"
+        
         self.section_level = 0
         self.cur_table_dimensions = (0, 0)
         self.in_table = False
@@ -45,6 +48,7 @@ class WordTranslator(nodes.NodeVisitor):
         self.bookmarks = {}
         self.in_link = False
         self.in_table_head = False
+        self.remove_carriage_return = False
         self.sections = [Section()]
 
     def visit_Text(self, node):
@@ -148,12 +152,15 @@ class WordTranslator(nodes.NodeVisitor):
                 style = getCST("wdStyleListBullet%d" % self.list_level)
             self.word.setStyle(style)
             self.in_list = True
+            self.remove_carriage_return = False
 
     def depart_bullet_list(self, node):
         if not (self.skip_text or self.in_admonition):
             self.list_level -= 1
             self.in_list = False
             self.word.clearFormatting()
+            if self.in_table:
+                self.remove_carriage_return = True
 
     def visit_caption(self, node):
         self.word.setStyle(CST.wdStyleCaption)
@@ -320,6 +327,9 @@ class WordTranslator(nodes.NodeVisitor):
             self.word.setFont("Bold")
 
     def depart_entry(self, node):
+        if self.remove_carriage_return:
+            self.remove_carriage_return = False
+            self.word.selection.TypeBackspace()
         if (self.cur_row >= self.cur_table_dimensions[0] and 
             self.cur_column >= self.cur_table_dimensions[1]):
             return
@@ -564,14 +574,19 @@ class WordTranslator(nodes.NodeVisitor):
         self.in_doc_property = False
 
     def visit_paragraph(self, node):
-        if not (   self.skip_text 
+        if self.in_table:
+            self.remove_carriage_return = True
+        elif not (   self.skip_text 
                 or self.in_list 
                 or self.in_table 
                 or self.in_admonition):
             self.word.setStyle(CST.wdStyleBodyText)
 
     def depart_paragraph(self, node):
-        if not (self.skip_text or self.in_table):
+        if self.in_table:
+            self.remove_carriage_return = False
+            self.word.newParagraph()
+        elif not (self.skip_text or self.in_table):
             self.word.newParagraph()
             if not (self.in_list or self.in_admonition):
                 self.word.clearFormatting()

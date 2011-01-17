@@ -73,20 +73,7 @@ class Word:
             # for word 2010
             if filename.endswith("docx"):
                 self.doc.SaveAs2(FileName=filename,
-                                 FileFormat=CST.wdFormatDocument,
-                                 LockComments=False, 
-                                 Password="", 
-                                 AddToRecentFiles=True, 
-                                 WritePassword="", 
-                                 ReadOnlyRecommended=False, 
-                                 EmbedTrueTypeFonts=False,
-                                 SaveNativePictureFormat=False, 
-                                 SaveFormsData=False, 
-                                 SaveAsAOCELetter=False, 
-                                 CompatibilityMode=12)
-            else:
-                self.doc.SaveAs2(FileName=filename,
-                                 FileFormat=CST.wdFormatDocument97,
+                                 FileFormat=CST.wdFormatXMLDocument,
                                  LockComments=False, 
                                  Password="", 
                                  AddToRecentFiles=True, 
@@ -97,10 +84,8 @@ class Word:
                                  SaveFormsData=False, 
                                  SaveAsAOCELetter=False, 
                                  CompatibilityMode=11)
-        except AttributeError:
-            # for other word versions
-            if filename.endswith("docx"):
-                self.doc.SaveAs(FileName=filename,
+            else:
+                self.doc.SaveAs2(FileName=filename,
                                  FileFormat=CST.wdFormatDocument,
                                  LockComments=False, 
                                  Password="", 
@@ -110,21 +95,51 @@ class Word:
                                  EmbedTrueTypeFonts=False,
                                  SaveNativePictureFormat=False, 
                                  SaveFormsData=False, 
-                                 SaveAsAOCELetter=False)
+                                 SaveAsAOCELetter=False, 
+                                 CompatibilityMode=0)
+        except AttributeError:
+            # for other word versions
+            if filename.endswith("docx"):
+                self.doc.SaveAs(FileName=filename,
+                                FileFormat=CST.wdFormatDocument,
+                                LockComments=False, 
+                                Password="", 
+                                AddToRecentFiles=True, 
+                                WritePassword="", 
+                                ReadOnlyRecommended=False, 
+                                EmbedTrueTypeFonts=False,
+                                SaveNativePictureFormat=False, 
+                                SaveFormsData=False, 
+                                SaveAsAOCELetter=False)
             else:
                 self.doc.SaveAs(FileName=filename,
-                                 FileFormat=CST.wdFormatDocument97,
-                                 LockComments=False, 
-                                 Password="", 
-                                 AddToRecentFiles=True, 
-                                 WritePassword="", 
-                                 ReadOnlyRecommended=False, 
-                                 EmbedTrueTypeFonts=False,
-                                 SaveNativePictureFormat=False, 
-                                 SaveFormsData=False, 
-                                 SaveAsAOCELetter=False)
-                
-
+                                FileFormat=CST.wdFormatDocument97,
+                                LockComments=False, 
+                                Password="", 
+                                AddToRecentFiles=True, 
+                                WritePassword="", 
+                                ReadOnlyRecommended=False, 
+                                EmbedTrueTypeFonts=False,
+                                SaveNativePictureFormat=False, 
+                                SaveFormsData=False, 
+                                SaveAsAOCELetter=False)
+    
+    def saveAsPdf(self, fileName):
+        self.doc.ExportAsFixedFormat(OutputFileName=fileName, 
+                                     ExportFormat=CST.wdExportFormatPDF, 
+                                     OpenAfterExport=False, 
+                                     OptimizeFor=CST.wdExportOptimizeForPrint, 
+                                     Range=CST.wdExportAllDocument, 
+                                     From=1, 
+                                     To=1,
+                                     Item=CST.wdExportDocumentContent, 
+                                     IncludeDocProps=True, 
+                                     KeepIRM=True,
+                                     CreateBookmarks=CST.wdExportCreateHeadingBookmarks, 
+                                     DocStructureTags=True,
+                                     BitmapMissingFonts=True, 
+                                     UseISO19005_1=True)
+    
     def printout(self):
         self.doc.PrintOut()
 
@@ -192,8 +207,18 @@ class Word:
         [UseFields], [TableID], [RightAlignPageNumbers], [IncludePageNumbers], [AddedStyles], 
         [UseHyperlinks], [HidePageNumbersInWeb], [UseOutlineLevels]) As TableOfContents
         """
-        self.doc.TablesOfContents.Add(Range=self.selection.Range, UseHeadingStyles=True,
-                                      UpperHeadingLevel=1, LowerHeadingLevel=depth, UseFields=True)
+        toc = self.doc.TablesOfContents.Add(Range=self.selection.Range, 
+                                            RightAlignPageNumbers=True, 
+                                            UseHeadingStyles=True, 
+                                            UpperHeadingLevel=1,
+                                            LowerHeadingLevel=depth, 
+                                            IncludePageNumbers=True, 
+                                            AddedStyles="",
+                                            UseHyperlinks=True, 
+                                            HidePageNumbersInWeb=True, 
+                                            UseOutlineLevels=True)
+        toc.TabLeader = CST.wdTabLeaderDots
+        self.doc.TablesOfContents.Format = CST.wdIndexIndent
         self.selectEnd()
 
     def updateFields(self):
