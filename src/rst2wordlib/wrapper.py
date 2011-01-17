@@ -308,11 +308,11 @@ class Word:
     
     def insertHyperlink(self, text, target):
         if target.startswith("_"):
-            self.doc.Hyperlinks.Add(Anchor=self.selection.Range,
-                                    SubAddress=target, TextToDisplay=text)
+            self.doc.Hyperlinks.Add(Anchor=self.selection.Range, Address="",
+                                    SubAddress=target, ScreenTip="", TextToDisplay=text)
         else:
-            self.doc.Hyperlinks.Add(Anchor=self.selection.Range,
-                                    Address=target, TextToDisplay=text)
+            self.doc.Hyperlinks.Add(Anchor=self.selection.Range, Address=target, 
+                                    SubAddress="", ScreenTip="", TextToDisplay=text)
     
     def convertToInternalHyperlink(self, link):
         target = link.Address
@@ -321,7 +321,7 @@ class Word:
         link.Range.Fields(1).Result.Select()
         link.Delete()
         self.doc.Hyperlinks.Add(Anchor=self.selection.Range, Address="", 
-                                SubAddress=target, TextToDisplay=text)
+                                SubAddress=target, ScreenTip="", TextToDisplay=text)
         self.selectEnd()
     
     def getHyperlinks(self):
