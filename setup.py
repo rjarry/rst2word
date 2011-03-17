@@ -27,9 +27,9 @@ setup(
     ],
     packages = ["rst2wordlib"],
     package_dir = {'': 'src'},
-    package_data = {'rst2wordlib': ['src/rst2wordlib/templates/rst2word.dot', 'src/rst2wordlib/templates/rst2word.dotx']},
+    package_data = {'rst2wordlib': ['templates/rst2word.dot', 'templates/rst2word.dotx']},
     data_files = [
-        ('rst2word/templates', ['src/rst2wordlib/templates/rst2word.dot', 'src/rst2wordlib/templates/rst2word.dotx'])
+        ('rst2word/templates', ['templates/rst2word.dot', 'templates/rst2word.dotx'])
     ],
     scripts = ['src/scripts/rst2word.cmd', 'src/scripts/rst2word.py']
 )
