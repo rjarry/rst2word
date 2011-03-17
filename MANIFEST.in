@@ -1,0 +1,3 @@
+include src/rst2wordlib/templates/rst2word.dot
+include src/rst2wordlib/templates/rst2word.dotx
+include README.rst

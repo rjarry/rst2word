@@ -915,8 +915,8 @@ def extract_sizes(node, thead=True):
     return rows, cols
 
 def get_default_template(extension=".dotx"):
-    dir = os.path.abspath(os.path.dirname(__file__))
-    return os.path.normpath(dir + "/templates/rst2word" + extension)
+    import sys
+    return os.path.normpath( sys.prefix + "/rst2word/templates/rst2word" + extension)
     
     
 class Hyperlink:
