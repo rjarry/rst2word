@@ -8,8 +8,7 @@ from docutils import nodes
 from rst2wordlib.wrapper import Word, Excel
 from rst2wordlib.constants import Constants as CST
 from rst2wordlib.constants import getConstant as getCST
-
-import os, os.path, re
+import os.path, re
 
 SPACE_REX = re.compile(r"(\s|\n|\r\n|\r)+", re.DOTALL)
 ILLEGAL_REX = re.compile(r"(\s|-|'|,|\(|\)|\"|:|;|\?|&|#|%|\+|/|\.|!|\*)+")
@@ -22,7 +21,15 @@ class WordTranslator(nodes.NodeVisitor):
         self.settings = document.settings
         if self.settings.word_template and not os.path.isabs(self.settings.word_template):
             self.settings.word_template = os.path.join(os.path.abspath(os.curdir), self.settings.word_template)
+        elif not self.settings.word_template:
+            if self.settings._destination.endswith(".docx"):
+                template_extension = ".dotx"
+            else:
+                template_extension = ".dot"
+            self.settings.word_template = get_default_template(template_extension)
+        
         self.word = Word(self.settings.word_template)
+        
         self.document = document
         self.root_path = os.path.abspath(os.path.dirname(self.document.attributes["source"]))
         self.destination = self.settings._destination
@@ -200,10 +207,10 @@ class WordTranslator(nodes.NodeVisitor):
         pass
 
     def visit_comment(self, node):
-        self.skip_text=True
+        self.skip_text = True
 
     def depart_comment(self, node):
-        self.skip_text=False
+        self.skip_text = False
 
     def visit_compound(self, node):
         pass
@@ -253,6 +260,9 @@ class WordTranslator(nodes.NodeVisitor):
         self.cur_column += 1
 
     def depart_definition(self, node):
+        if self.remove_carriage_return:
+            self.remove_carriage_return = False
+            self.word.selection.TypeBackspace()
         if (self.cur_row >= self.cur_table_dimensions[0]):
             return
         else:
@@ -263,7 +273,7 @@ class WordTranslator(nodes.NodeVisitor):
         rows, cols = len(node.children), 2
         self.cur_table_dimensions = (rows, cols)
         table = self.word.addTable(rows, cols)
-        self.word.formatTable(table, latteral_padding=0.2, vertical_padding=0.1, border=False)
+        self.word.formatTable(table, latteral_padding=0.2, vertical_padding=0.2, border=False)
                               
 
     def depart_definition_list(self, node):
@@ -307,12 +317,14 @@ class WordTranslator(nodes.NodeVisitor):
         self.word.setStyle(CST.wdStyleBodyText)
 
     def depart_document(self, node):
+        print "Updating bookmarks..."
         for link in self.word.getHyperlinks():
             try:
                 self.bookmarks[link.Address]
                 self.word.convertToInternalHyperlink(link)
             except KeyError:
                 pass
+        print "Updating document fields..."
         self.word.updateFields()
 
     def visit_emphasis(self, node):
@@ -575,8 +587,8 @@ class WordTranslator(nodes.NodeVisitor):
 
     def visit_paragraph(self, node):
         if self.in_table:
-            self.remove_carriage_return = True
-        elif not (   self.skip_text 
+            self.remove_carriage_return = False
+        elif not (self.skip_text 
                 or self.in_list 
                 or self.in_table 
                 or self.in_admonition):
@@ -584,7 +596,7 @@ class WordTranslator(nodes.NodeVisitor):
 
     def depart_paragraph(self, node):
         if self.in_table:
-            self.remove_carriage_return = False
+            self.remove_carriage_return = True
             self.word.newParagraph()
         elif not (self.skip_text or self.in_table):
             self.word.newParagraph()
@@ -606,10 +618,7 @@ class WordTranslator(nodes.NodeVisitor):
     def visit_raw(self, node):
         self.skip_text = True
         
-        if node["format"] == "word":
-            if node.astext() == "page-break":
-                self.word.insertPageBreak()
-        elif node["format"] == "excel":
+        if node["format"] == "excel":
             filename = node["source"]
             if not os.path.isabs(filename):
                 filename = os.path.join(self.root_path, filename)
@@ -748,7 +757,7 @@ class WordTranslator(nodes.NodeVisitor):
         if "no-format" in node["classes"]:
             self.word.formatTable(table, latteral_padding=0.2, vertical_padding=0.1, border=False)
         else:
-            self.word.formatTable(table=table, latteral_padding=0.25, vertical_padding=0.2, 
+            self.word.formatTable(table=table, latteral_padding=0.25, vertical_padding=0.2,
                                   border=True, first_row_bg_color=CST.wdColorGray15)
 
     def depart_table(self, node):
@@ -779,10 +788,14 @@ class WordTranslator(nodes.NodeVisitor):
 
     def visit_term(self, node):
         self.cur_column += 1
+        self.word.setStyle(CST.wdStyleNormal)
         self.word.setFont("Bold")
         self.word.setAlignment(CST.wdAlignParagraphRight)
 
     def depart_term(self, node):
+        if self.remove_carriage_return:
+            self.remove_carriage_return = False
+            self.word.selection.TypeBackspace()
         self.word.setStyle(CST.wdStyleDefaultParagraphFont)
         self.word.move("right", CST.wdCell)
 
@@ -857,10 +870,11 @@ class WordTranslator(nodes.NodeVisitor):
         
 
     def visit_transition(self, node):
-        pass
+        self.skip_text = True
 
     def depart_transition(self, node):
-        pass
+        self.word.insertPageBreak()
+        self.skip_text = False
 
     def visit_version(self, node):
         pass
@@ -900,7 +914,11 @@ def extract_sizes(node, thead=True):
             break
     return rows, cols
 
-
+def get_default_template(extension=".dotx"):
+    dir = os.path.abspath(os.path.dirname(__file__))
+    return os.path.normpath(dir + "/templates/rst2word" + extension)
+    
+    
 class Hyperlink:
     start = None
     end = None

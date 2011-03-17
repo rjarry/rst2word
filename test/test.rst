@@ -1,13 +1,11 @@
 .. |Authors| replace:: Robin Jarry, Gregory Boissinot
-.. |Company| replace:: Thales Corporate Services
+.. |Company| replace:: AB LogiX
 .. |Date| date:: 
-.. |Title| replace:: ThalesControl SCOM
-.. |Subject| replace:: Software Center Operator Manual
+.. |Title| replace:: RST 2 Word
+.. |Subject| replace:: Yeah
 .. |Doc_id| replace:: 46655 54684621 1321354
 
-.. raw:: word
-
-    page-break
+--------------------------------
 
 .. contents:: Table of Contents
    :depth: 2

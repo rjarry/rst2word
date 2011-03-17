@@ -2,17 +2,17 @@
 from distutils.core import setup
 setup(
     name = "rst2word",
-    version = "0.5.2",
+    version = "0.6.0",
     license = "MIT",
     platforms = ["Windows"],
-    requires = ["docutils (>=0.7)", "win32com"],
+    requires = ["docutils (>=0.7)", "PyWin32"],
 
     description = "A Word writer for docutils",
-    long_description = open('README.txt').read(),
+    long_description = open('README.rst').read(),
     author = "Robin Jarry",
     author_email = "robin.jarry@gmail.com",
-    url = "https://github.com/diabeteman/rst2word",
-    download_url = "https://github.com/diabeteman/rst2word",
+    url = "http://github.com/robin-jarry/rst2word",
+    download_url = "http://github.com/robin-jarry/rst2word",
     keywords = ["docutils", "rst", "reStructuredText", "word"],
     classifiers = [
         "Programming Language :: Python",
@@ -27,6 +27,7 @@ setup(
     ],
     packages = ["rst2wordlib"],
     package_dir = {'': 'src'},
+    package_data = {'rst2wordlib': ['src/rst2wordlib/rst2word.dot', 'src/rst2wordlib/rst2word.dotx']},
     scripts = ['src/scripts/rst2word.cmd', 'src/scripts/rst2word.py']
 )
 

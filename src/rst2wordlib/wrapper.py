@@ -6,7 +6,7 @@ Created on 26 oct. 2010
 '''
 import win32com.client as WIN
 from rst2wordlib.constants import Constants as CST
-import re
+
 
 class Excel:
 
@@ -124,21 +124,23 @@ class Word:
                                 SaveFormsData=False, 
                                 SaveAsAOCELetter=False)
     
-    def saveAsPdf(self, fileName):
-        self.doc.ExportAsFixedFormat(OutputFileName=fileName, 
+    def saveAsPdf(self, fileName, show_after_export=False):
+        self.doc.ExportAsFixedFormat(OutputFileName=fileName,
                                      ExportFormat=CST.wdExportFormatPDF, 
-                                     OpenAfterExport=False, 
+                                     OpenAfterExport=show_after_export, 
                                      OptimizeFor=CST.wdExportOptimizeForPrint, 
                                      Range=CST.wdExportAllDocument, 
-                                     From=1, 
-                                     To=1,
+                                     From=1, To=1,
                                      Item=CST.wdExportDocumentContent, 
                                      IncludeDocProps=True, 
-                                     KeepIRM=True,
+                                     KeepIRM=True, 
                                      CreateBookmarks=CST.wdExportCreateHeadingBookmarks, 
-                                     DocStructureTags=True,
+                                     DocStructureTags=True, 
                                      BitmapMissingFonts=True, 
                                      UseISO19005_1=True)
+        
+        
+
     
     def printout(self):
         self.doc.PrintOut()
@@ -207,20 +209,27 @@ class Word:
         [UseFields], [TableID], [RightAlignPageNumbers], [IncludePageNumbers], [AddedStyles], 
         [UseHyperlinks], [HidePageNumbersInWeb], [UseOutlineLevels]) As TableOfContents
         """
+        
+        # COM/DCOM has a problem with the "UseHyperlinks" parameter
+        # it should accept a boolean value, but it doesn't.
+        # I had to "guess" that "1" was "True"
+        # wtf is this ? I don't know... but it works.
+        TRUE = 1
+        
         toc = self.doc.TablesOfContents.Add(Range=self.selection.Range, 
-                                            RightAlignPageNumbers=True, 
-                                            UseHeadingStyles=True, 
-                                            UpperHeadingLevel=1,
-                                            LowerHeadingLevel=depth, 
-                                            IncludePageNumbers=True, 
-                                            AddedStyles="",
-                                            UseHyperlinks=True, 
-                                            HidePageNumbersInWeb=True, 
-                                            UseOutlineLevels=True)
+                                          RightAlignPageNumbers=True, 
+                                          UseHeadingStyles=True, 
+                                          UpperHeadingLevel=1,
+                                          LowerHeadingLevel=depth, 
+                                          IncludePageNumbers=True, 
+                                          AddedStyles="",
+                                          UseHyperlinks=TRUE, 
+                                          HidePageNumbersInWeb=1, 
+                                          UseOutlineLevels=False)
         toc.TabLeader = CST.wdTabLeaderDots
         self.doc.TablesOfContents.Format = CST.wdIndexIndent
         self.selectEnd()
-
+        
     def updateFields(self):
         for table in self.doc.TablesOfContents:
             table.Update()

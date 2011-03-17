@@ -47,13 +47,16 @@ class Writer(writers.Writer):
         try:
             print "Generating word document..."
             self.document.walkabout(self.visitor)
-            print "Saving document %s..." % self.visitor.destination
-            self.visitor.word.saveAs(self.visitor.destination)
             if self.document.settings.pdf and self.visitor.pdf_destination:
                 print "Exporting document to PDF file %s..." % self.visitor.pdf_destination
-                self.visitor.word.saveAsPdf(self.visitor.pdf_destination)
+                
+                self.visitor.word.saveAsPdf(fileName=self.visitor.pdf_destination,
+                                            show_after_export=not self.document.settings.headless)
+            else:
+                print "Saving document to file %s..." % self.visitor.destination
+                self.visitor.word.saveAs(self.visitor.destination)
         finally:
-            if self.document.settings.headless:
+            if self.document.settings.headless or self.document.settings.pdf:
                 self.visitor.word.quit()
             else:
                 self.visitor.word.show()
