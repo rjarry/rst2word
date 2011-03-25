@@ -35,8 +35,12 @@ class WordTranslator(nodes.NodeVisitor):
         self.destination = self.settings._destination
         if not os.path.isabs(self.destination):
             self.destination = os.path.join(os.path.abspath(os.curdir), self.destination)
-        name = self.destination.rsplit(".", 1)[0]
-        self.pdf_destination = name + ".pdf"
+        
+        name, extension = self.destination.rsplit(".", 1)
+        if extension == "pdf":
+            self.pdf_destination = self.destination
+        else:
+            self.pdf_destination = None
         
         self.section_level = 0
         self.cur_table_dimensions = (0, 0)
@@ -618,23 +622,25 @@ class WordTranslator(nodes.NodeVisitor):
     def visit_raw(self, node):
         self.skip_text = True
         
-        if node["format"] == "excel":
-            filename = node["source"]
-            if not os.path.isabs(filename):
-                filename = os.path.join(self.root_path, filename)
+        filename = node["source"]
+        if not os.path.isabs(filename):
+            filename = os.path.join(self.root_path, filename)
         
+        if node["format"] == "excel":
             xl = Excel(os.path.normpath(filename))
             xl.copyCells()
             self.word.pasteExcelTable()
             xl.close()
-            
         elif node["format"] == "powerpoint":
-            filename = node["source"]
-            if not os.path.isabs(filename):
-                filename = os.path.join(self.root_path, filename)
-                
             self.word.addOLEObject(os.path.normpath(filename))
-            
+        else:
+            f = open(filename, "r")
+            content = f.read()
+            self.word.setStyle(CST.wdStyleHtmlPre)
+            self.word.addText(content)
+            self.word.newParagraph()
+            self.word.clearFormatting()
+
     def depart_raw(self, node):
         self.skip_text = False
 

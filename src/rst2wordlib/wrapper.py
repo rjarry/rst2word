@@ -6,7 +6,8 @@ Created on 26 oct. 2010
 '''
 import win32com.client as WIN
 from rst2wordlib.constants import Constants as CST
-
+import os.path
+from distutils import dir_util
 
 class Excel:
 
@@ -69,6 +70,9 @@ class Word:
         return self.styles
 
     def saveAs(self, filename):
+        dir = os.path.abspath(os.path.dirname(filename))
+        if not os.path.exists(dir):
+            dir_util.mkpath(dir)
         try:
             # for word 2010
             if filename.endswith("docx"):
@@ -124,8 +128,11 @@ class Word:
                                 SaveFormsData=False, 
                                 SaveAsAOCELetter=False)
     
-    def saveAsPdf(self, fileName, show_after_export=False):
-        self.doc.ExportAsFixedFormat(OutputFileName=fileName,
+    def saveAsPdf(self, filename, show_after_export=False):
+        dir = os.path.abspath(os.path.dirname(filename))
+        if not os.path.exists(dir):
+            dir_util.mkpath(dir)
+        self.doc.ExportAsFixedFormat(OutputFileName=filename,
                                      ExportFormat=CST.wdExportFormatPDF, 
                                      OpenAfterExport=show_after_export, 
                                      OptimizeFor=CST.wdExportOptimizeForPrint, 

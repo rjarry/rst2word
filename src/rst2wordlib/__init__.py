@@ -29,8 +29,6 @@ class Writer(writers.Writer):
                 {'default': 3}),   
             ('Headless mode', ['--headless'],
                 {'default': False, 'action': 'store_true'}),
-            ('Export to PDF', ['--pdf'],
-                {'default': False, 'action': 'store_true'}),
         )
     )
 
@@ -47,10 +45,11 @@ class Writer(writers.Writer):
         try:
             print "Generating word document..."
             self.document.walkabout(self.visitor)
-            if self.document.settings.pdf and self.visitor.pdf_destination:
+            
+            if self.visitor.pdf_destination:
                 print "Exporting document to PDF file %s..." % self.visitor.pdf_destination
                 
-                self.visitor.word.saveAsPdf(fileName=self.visitor.pdf_destination,
+                self.visitor.word.saveAsPdf(filename=self.visitor.pdf_destination,
                                             show_after_export=not self.document.settings.headless)
             else:
                 print "Saving document to file %s..." % self.visitor.destination
