@@ -24,11 +24,15 @@ class Writer(writers.Writer):
             ('Auto insert caption titles', ['--auto-caption'],
                 {'default': False, 'action': 'store_true'}),
             ('Global scale for all images', ['--image-scale'],
-                {'default': 100}),
+                {'default': 100, 'type': 'int'}),
             ('Table of Contents depth', ['--toc-depth'],
-                {'default': 3}),   
+                {'default': 3, 'type': 'int'}),   
             ('Headless mode', ['--headless'],
                 {'default': False, 'action': 'store_true'}),
+            ('Vertical padding on tables (in cm)', ['--vertical-padding'],
+                {'default': 0.2, 'type': 'float'}),
+            ('Lateral padding on tables (in cm)', ['--lateral-padding'],
+                {'default': 0.2, 'type': 'float'}),   
         )
     )
 
@@ -55,7 +59,7 @@ class Writer(writers.Writer):
                 print "Saving document to file %s..." % self.visitor.destination
                 self.visitor.word.saveAs(self.visitor.destination)
         finally:
-            if self.document.settings.headless or self.document.settings.pdf:
+            if self.document.settings.headless or self.visitor.pdf_destination:
                 self.visitor.word.quit()
             else:
                 self.visitor.word.show()

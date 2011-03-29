@@ -224,15 +224,16 @@ class Word:
         TRUE = 1
         
         toc = self.doc.TablesOfContents.Add(Range=self.selection.Range, 
-                                          RightAlignPageNumbers=True, 
-                                          UseHeadingStyles=True, 
-                                          UpperHeadingLevel=1,
-                                          LowerHeadingLevel=depth, 
-                                          IncludePageNumbers=True, 
-                                          AddedStyles="",
-                                          UseHyperlinks=TRUE, 
-                                          HidePageNumbersInWeb=1, 
-                                          UseOutlineLevels=False)
+                                            RightAlignPageNumbers=True, 
+                                            UseHeadingStyles=True,
+                                            UpperHeadingLevel=1,
+                                            LowerHeadingLevel=depth, 
+                                            IncludePageNumbers=True, 
+                                            AddedStyles="",
+                                            UseHyperlinks=TRUE, 
+                                            HidePageNumbersInWeb=TRUE, 
+                                            UseOutlineLevels=False)
+        
         toc.TabLeader = CST.wdTabLeaderDots
         self.doc.TablesOfContents.Format = CST.wdIndexIndent
         self.selectEnd()
@@ -307,20 +308,21 @@ class Word:
         for t in self.doc.Tables:
             self.formatTable(t, style, fit, align)
     
-    def formatTable(self, table, latteral_padding=0.25, vertical_padding=0.15, 
+    def formatTable(self, table, lateral_padding=0.25, vertical_padding=0.15, 
                     border=False, first_row_bg_color=CST.wdColorAutomatic, 
                     fit=CST.wdAutoFitContent, align=CST.wdAlignRowCenter):
-        
+
         table.TopPadding = CentimetersToPoints(vertical_padding)
         table.BottomPadding = CentimetersToPoints(vertical_padding)
-        table.LeftPadding = CentimetersToPoints(latteral_padding)
-        table.RightPadding = CentimetersToPoints(latteral_padding)
+        table.LeftPadding = CentimetersToPoints(lateral_padding)
+        table.RightPadding = CentimetersToPoints(lateral_padding)
             
         if first_row_bg_color != CST.wdColorAutomatic:
-            first_row = table.Rows.Item(1)
-            first_row.Cells.Shading.Texture = CST.wdTextureNone
-            first_row.Cells.Shading.ForegroundPatternColor = CST.wdColorAutomatic
-            first_row.Cells.Shading.BackgroundPatternColor = first_row_bg_color
+            table.Rows.AllowBreakAcrossPages = False
+            table.Rows.First.HeadingFormat = True
+            table.Rows.First.Cells.Shading.Texture = CST.wdTextureNone
+            table.Rows.First.Cells.Shading.ForegroundPatternColor = CST.wdColorAutomatic
+            table.Rows.First.Cells.Shading.BackgroundPatternColor = first_row_bg_color
         
         if border:
             setBorder(table.Borders(CST.wdBorderLeft))
