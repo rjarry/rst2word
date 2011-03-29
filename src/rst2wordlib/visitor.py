@@ -277,7 +277,10 @@ class WordTranslator(nodes.NodeVisitor):
         rows, cols = len(node.children), 2
         self.cur_table_dimensions = (rows, cols)
         table = self.word.addTable(rows, cols)
-        self.word.formatTable(table, latteral_padding=0.2, vertical_padding=0.2, border=False)
+        self.word.formatTable(table, 
+                              lateral_padding=self.settings.lateral_padding, 
+                              vertical_padding=self.settings.vertical_padding, 
+                              border=False)
                               
 
     def depart_definition_list(self, node):
@@ -761,10 +764,16 @@ class WordTranslator(nodes.NodeVisitor):
         self.cur_table_dimensions = (rows, cols)
         table = self.word.addTable(rows, cols)
         if "no-format" in node["classes"]:
-            self.word.formatTable(table, latteral_padding=0.2, vertical_padding=0.1, border=False)
+            self.word.formatTable(table, 
+                                  lateral_padding=self.settings.lateral_padding, 
+                                  vertical_padding=self.settings.vertical_padding, 
+                                  border=False)
         else:
-            self.word.formatTable(table=table, latteral_padding=0.25, vertical_padding=0.2,
-                                  border=True, first_row_bg_color=CST.wdColorGray15)
+            self.word.formatTable(table=table, 
+                                  lateral_padding=self.settings.lateral_padding, 
+                                  vertical_padding=self.settings.vertical_padding, 
+                                  border=True, 
+                                  first_row_bg_color=CST.wdColorGray15)
 
     def depart_table(self, node):
         self.in_table = False

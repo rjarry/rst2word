@@ -24,11 +24,15 @@ class Writer(writers.Writer):
             ('Auto insert caption titles', ['--auto-caption'],
                 {'default': False, 'action': 'store_true'}),
             ('Global scale for all images', ['--image-scale'],
-                {'default': 100}),
+                {'default': 100, 'type': 'int'}),
             ('Table of Contents depth', ['--toc-depth'],
-                {'default': 3}),   
+                {'default': 3, 'type': 'int'}),   
             ('Headless mode', ['--headless'],
                 {'default': False, 'action': 'store_true'}),
+            ('Vertical padding on tables (in cm)', ['--vertical-padding'],
+                {'default': 0.2, 'type': 'float'}),
+            ('Lateral padding on tables (in cm)', ['--lateral-padding'],
+                {'default': 0.2, 'type': 'float'}),   
         )
     )
 
